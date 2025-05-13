@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h2>Meu Perfil</h2>
+    {% if current_user.is_authenticated %}
+        <p><strong>Nome:</strong> {{ current_user.name }}</p>
+        <p><strong>Email:</strong> {{ current_user.email }}</p>
+        <p><strong>Celular:</strong> {{ current_user.phone_number }}</p>
+    {% else %}
+        <p>Você não está logado.</p>
+    {% endif %}
+{% endblock %}

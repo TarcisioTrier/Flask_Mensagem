@@ -1,0 +1,33 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+}
+nav a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: blue;
+}
+nav a:hover {
+    text-decoration: underline;
+}
+.flash-success {
+    color: green;
+    background-color: #e6ffe6;
+    border: 1px solid green;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.flash-error {
+    color: red;
+    background-color: #ffe6e6;
+    border: 1px solid red;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.flash-info {
+    color: blue;
+    background-color: #e6e6ff;
+    border: 1px solid blue;
+    padding: 10px;
+    margin-bottom: 10px;
+}

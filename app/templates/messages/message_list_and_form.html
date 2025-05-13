@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        {# Simulação da imagem de perfil e nome do contato #}
+        <span style="font-size: 2em; margin-right: 10px;">👤</span> {# Ícone de perfil placeholder #}
+        <h2 style="display: inline-block;">{{ contact.name }}</h2>
+        <p><small>{{ contact.phone_number }} | {{ contact.email if contact.email else 'Sem email' }}</small></p>
+    </div>
+    <a href="{{ url_for('contact_bp.list_contacts') }}" class="button-like">Voltar para Contatos</a>
+</div>
+
+{# Formulário para enviar nova mensagem #}
+<div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 30px; background-color: #f9f9f9;">
+    <h3>Enviar Nova Mensagem</h3>
+    <form method="POST" action="{{ url_for('message_bp.list_messages_for_contact', contact_id=contact.id) }}" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.title.label(style="font-weight:bold;") }}<br>
+            {{ form.title(size=50, class="form-input") }}<br>
+            {% for error in form.title.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.body.label(style="font-weight:bold;") }}<br>
+            {{ form.body(rows=4, cols=50, class="form-textarea") }}<br>
+            {% for error in form.body.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit(value="✉️ Enviar", class="button") }}</p>
+    </form>
+</div>
+
+{# Lista de mensagens enviadas #}
+<h3>Histórico de Mensagens</h3>
+{% if messages %}
+    <ul style="list-style-type: none; padding: 0;">
+        {% for message in messages %}
+        <li style="border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 15px; background-color: #fff;">
+            <h4>{{ message.title }}</h4>
+            <p>{{ message.body | nl2br }}</p> {# nl2br para preservar quebras de linha #}
+            <small style="color: #777;">Enviado em: {{ message.timestamp.strftime('%d/%m/%Y às %H:%M:%S') }} UTC</small>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Nenhuma mensagem trocada com {{ contact.name }} ainda. Seja o primeiro a enviar!</p>
+{% endif %}
+
+<style>
+/* Você pode mover estes estilos para seu style.css principal */
+.button {
+    display: inline-block; padding: 10px 15px; font-size: 16px; cursor: pointer;
+    text-align: center; text-decoration: none; outline: none; color: #fff;
+    background-color: #007bff; border: none; border-radius: 5px; box-shadow: 0 2px #999;
+}
+.button:hover { background-color: #0069d9; }
+.button:active { background-color: #0062cc; box-shadow: 0 1px #666; transform: translateY(1px); }
+
+.button-like {
+    padding: 8px 12px; text-decoration: none; border: 1px solid #ccc;
+    border-radius: 3px; color: #333; background-color: #f0f0f0;
+}
+.button-like:hover { background-color: #e0e0e0; }
+
+.form-input, .form-textarea {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Para que padding não aumente a largura total */
+}
+</style>
+{% endblock %}

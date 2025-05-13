@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Faça o Login{% endblock %}
+
+{% block content %}
+<h2>Faça o Login</h2>
+<form method="POST" action="{{ url_for('auth_bp.login') }}" novalidate>
+    {{ form.hidden_tag() }} {# Proteção CSRF #}
+
+    <p>
+        {{ form.email.label }}<br>
+        {{ form.email(size=32) }}<br>
+        {% for error in form.email.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}<br>
+        {% for error in form.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.remember_me() }} {{ form.remember_me.label }}
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+<p>Novo por aqui? <a href="{{ url_for('auth_bp.register') }}">Cadastre-se!</a></p>
+{% endblock %}

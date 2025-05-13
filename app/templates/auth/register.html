@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro de Usuário{% endblock %}
+
+{% block content %}
+<h2>Cadastro de Usuário</h2>
+<form method="POST" action="{{ url_for('auth_bp.register') }}" novalidate>
+    {{ form.hidden_tag() }} {# Importante para proteção CSRF #}
+
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}<br>
+        {% for error in form.name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.email.label }}<br>
+        {{ form.email(size=32) }}<br>
+        {% for error in form.email.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.phone_number.label }}<br>
+        {{ form.phone_number(size=32) }}<br>
+        {% for error in form.phone_number.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}<br>
+        {% for error in form.password.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.password2.label }}<br>
+        {{ form.password2(size=32) }}<br>
+        {% for error in form.password2.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.submit() }}
+        <a href="{{ url_for('main_bp.index') }}">Cancelar</a> {# Ou para login, se preferir #}
+    </p>
+</form>
+{% endblock %}

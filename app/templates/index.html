@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>Bem-vindo à Agenda de Contatos!</h1>
+    {% if current_user.is_authenticated %}
+        <p>Olá, {{ current_user.name }}!</p>
+        <p><a href="{{ url_for('main_bp.profile') }}">Ver meu perfil</a></p>
+        <p>Aqui você poderá gerenciar seus contatos e mensagens.</p>
+        <p><a href="{{ url_for('contact_bp.list_contacts') }}">Meus Contatos</a></p> {# << GARANTA QUE ESTEJA CORRETO/DESCOMENTADO #}
+    {% else %}
+        <p>Por favor, <a href="{{ url_for('auth_bp.login') }}">faça login</a> ou <a href="{{ url_for('auth_bp.register') }}">registre-se</a> para começar.</p>
+    {% endif %}
+{% endblock %}

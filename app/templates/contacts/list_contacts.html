@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Meus Contatos</h2>
+    <a href="{{ url_for('auth_bp.logout') }}" class="button">SAIR</a> {# Botão Sair como no wireframe #}
+</div>
+
+{% if contacts %}
+    <ul style="list-style-type: none; padding: 0;">
+        {% for contact in contacts %}
+        <li style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <span><strong>{{ contact.name }}</strong><br><small>{{ contact.phone_number }} | {{ contact.email if contact.email else 'Sem email' }}</small></span>
+            <div>
+                {# Use '#' no href até criarmos a rota de mensagens #}
+                <a href="{{ url_for('message_bp.list_messages_for_contact', contact_id=contact.id) }}" class="button-like">Mensagens</a>
+                <a href="{{ url_for('contact_bp.edit_contact', contact_id=contact.id) }}" class="button-like">✏️</a>
+                <form action="{{ url_for('contact_bp.delete_contact', contact_id=contact.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir {{ contact.name }}?');">
+                    <button type="submit" class="button-like" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 5px; font-size: inherit; vertical-align: baseline;">🗑️</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Você ainda não tem contatos cadastrados.</p>
+{% endif %}
+
+<div style="margin-top: 20px;">
+    <a href="{{ url_for('contact_bp.add_contact') }}" class="button">Novo Contato</a>
+</div>
+
+{# Paginação (simples) #}
+{% if pagination and (pagination.has_prev or pagination.has_next) %}
+<nav aria-label="Paginação de contatos">
+    <ul class="pagination" style="list-style-type: none; padding: 0; display: flex; justify-content: center; margin-top:20px;">
+        {% if pagination.has_prev %}
+            <li style="margin-right: 5px;"><a href="{{ url_for('contact_bp.list_contacts', page=pagination.prev_num) }}">« Anterior</a></li>
+        {% else %}
+            <li style="margin-right: 5px; color: #aaa;">« Anterior</li>
+        {% endif %}
+
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if page_num %}
+                {% if pagination.page == page_num %}
+                    <li style="margin-right: 5px; font-weight: bold;">{{ page_num }}</li>
+                {% else %}
+                    <li style="margin-right: 5px;"><a href="{{ url_for('contact_bp.list_contacts', page=page_num) }}">{{ page_num }}</a></li>
+                {% endif %}
+            {% else %}
+                <li style="margin-right: 5px;">...</li>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.has_next %}
+            <li style="margin-left: 5px;"><a href="{{ url_for('contact_bp.list_contacts', page=pagination.next_num) }}">Próximo »</a></li>
+        {% else %}
+            <li style="margin-left: 5px; color: #aaa;">Próximo »</li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<style>
+    .button {
+        display: inline-block;
+        padding: 10px 15px;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        outline: none;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        box-shadow: 0 2px #999;
+    }
+    .button:hover {background-color: #0069d9}
+    .button:active {
+        background-color: #0062cc;
+        box-shadow: 0 1px #666;
+        transform: translateY(1px);
+    }
+    .button-like {
+        padding: 5px 10px;
+        margin-left: 5px;
+        text-decoration: none;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        color: #333;
+    }
+    .button-like:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+{% endblock %}
