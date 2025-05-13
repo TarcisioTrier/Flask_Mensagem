@@ -5,15 +5,13 @@
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div>
-        {# Simulação da imagem de perfil e nome do contato #}
-        <span style="font-size: 2em; margin-right: 10px;">👤</span> {# Ícone de perfil placeholder #}
+        <span style="font-size: 2em; margin-right: 10px;">👤</span>
         <h2 style="display: inline-block;">{{ contact.name }}</h2>
         <p><small>{{ contact.phone_number }} | {{ contact.email if contact.email else 'Sem email' }}</small></p>
     </div>
     <a href="{{ url_for('contact_bp.list_contacts') }}" class="button-like">Voltar para Contatos</a>
 </div>
 
-{# Formulário para enviar nova mensagem #}
 <div style="border: 1px solid #ccc; padding: 20px; margin-bottom: 30px; background-color: #f9f9f9;">
     <h3>Enviar Nova Mensagem</h3>
     <form method="POST" action="{{ url_for('message_bp.list_messages_for_contact', contact_id=contact.id) }}" novalidate>
@@ -36,16 +34,34 @@
     </form>
 </div>
 
-{# Lista de mensagens enviadas #}
 <h3>Histórico de Mensagens</h3>
 {% if messages %}
     <ul style="list-style-type: none; padding: 0;">
         {% for message in messages %}
-        <li style="border: 1px solid #e0e0e0; margin-bottom: 15px; padding: 15px; background-color: #fff;">
-            <h4>{{ message.title }}</h4>
-            <p>{{ message.body | nl2br }}</p> {# nl2br para preservar quebras de linha #}
-            <small style="color: #777;">Enviado em: {{ message.timestamp.strftime('%d/%m/%Y às %H:%M:%S') }} UTC</small>
-        </li>
+        <div class="list-group-item list-group-item-action flex-column align-items-start mb-2">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ message.title }}</h5>
+                <div>
+                    <small class="text-muted me-2 local-datetime"
+                        data-timestamp="{{ message.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}"
+                        title="Horário local (original: {{ message.timestamp.strftime('%d/%m/%y %H:%M') }} UTC)">
+                        Carregando horário...
+                    </small>
+        
+                    {% if message.user_id == current_user.id %}
+                        <a href="{{ url_for('message_bp.edit_message', message_id=message.id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Editar Mensagem">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="{{ url_for('message_bp.delete_message', message_id=message.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir esta mensagem?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir Mensagem">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            <p class="mb-1">{{ message.body | nl2br }}</p>
+        </div>
         {% endfor %}
     </ul>
 {% else %}
@@ -53,7 +69,6 @@
 {% endif %}
 
 <style>
-/* Você pode mover estes estilos para seu style.css principal */
 .button {
     display: inline-block; padding: 10px 15px; font-size: 16px; cursor: pointer;
     text-align: center; text-decoration: none; outline: none; color: #fff;
@@ -76,7 +91,7 @@
     margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Para que padding não aumente a largura total */
+    box-sizing: border-box; 
 }
 </style>
 {% endblock %}

@@ -3,11 +3,21 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-    <h2>Meu Perfil</h2>
+    <h2 class="mb-4">Meu Perfil</h2>
     {% if current_user.is_authenticated %}
-        <p><strong>Nome:</strong> {{ current_user.name }}</p>
-        <p><strong>Email:</strong> {{ current_user.email }}</p>
-        <p><strong>Celular:</strong> {{ current_user.phone_number }}</p>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-person-badge"></i> {{ current_user.name }}</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Email:</strong> {{ current_user.email }}</li>
+                <li class="list-group-item"><strong>Celular:</strong> {{ current_user.phone_number }}</li>
+                {# Adicionar data de cadastro? #}
+                {# <li class="list-group-item"><strong>Membro desde:</strong> {{ current_user.registered_on.strftime('%d/%m/%Y') if current_user.registered_on else 'N/A' }}</li> #}
+            </ul>
+             {# Botão para futura página de edição de perfil #}
+             <a href="#" class="btn btn-outline-secondary mt-3 disabled"><i class="bi bi-pencil"></i> Editar Perfil (Em breve)</a>
+          </div>
+        </div>
     {% else %}
         <p>Você não está logado.</p>
     {% endif %}

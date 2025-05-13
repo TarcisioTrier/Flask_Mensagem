@@ -3,13 +3,21 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-    <h1>Bem-vindo à Agenda de Contatos!</h1>
-    {% if current_user.is_authenticated %}
-        <p>Olá, {{ current_user.name }}!</p>
-        <p><a href="{{ url_for('main_bp.profile') }}">Ver meu perfil</a></p>
-        <p>Aqui você poderá gerenciar seus contatos e mensagens.</p>
-        <p><a href="{{ url_for('contact_bp.list_contacts') }}">Meus Contatos</a></p> {# << GARANTA QUE ESTEJA CORRETO/DESCOMENTADO #}
-    {% else %}
-        <p>Por favor, <a href="{{ url_for('auth_bp.login') }}">faça login</a> ou <a href="{{ url_for('auth_bp.register') }}">registre-se</a> para começar.</p>
-    {% endif %}
+    <div class="p-5 mb-4 bg-light rounded-3">
+      <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Bem-vindo à MinhaAgenda!</h1>
+        <p class="col-md-8 fs-4">Sua plataforma simples para gerenciar contatos e enviar mensagens.</p>
+        {% if current_user.is_authenticated %}
+             <a href="{{ url_for('contact_bp.list_contacts') }}" class="btn btn-primary btn-lg" type="button">Ver Meus Contatos <i class="bi bi-arrow-right-circle"></i></a>
+        {% else %}
+             <a href="{{ url_for('auth_bp.login') }}" class="btn btn-primary btn-lg me-2" type="button">Login</a>
+             <a href="{{ url_for('auth_bp.register') }}" class="btn btn-secondary btn-lg" type="button">Cadastro</a>
+        {% endif %}
+      </div>
+    </div>
+
+     {% if current_user.is_authenticated %}
+     {# Pode adicionar mais informações ou links aqui se quiser #}
+     {% endif %}
+
 {% endblock %}

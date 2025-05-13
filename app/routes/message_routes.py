@@ -45,3 +45,64 @@ def list_messages_for_contact(contact_id):
                            contact=contact,
                            form=form,
                            messages=messages)
+    
+@bp.route('/<int:message_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_message(message_id):
+    message = Message.query.get_or_404(message_id)
+
+    # Segurança: Verifique se o usuário logado é o remetente da mensagem
+    if message.user_id != current_user.id:
+        flash('Você não tem permissão para editar esta mensagem.', 'danger')
+        # Tenta redirecionar de volta para a conversa original, se possível
+        if message.recipient: # Se a mensagem tem um destinatário (contato)
+             return redirect(url_for('message_bp.list_messages_for_contact', contact_id=message.contact_id))
+        return redirect(url_for('main_bp.index')) # Fallback
+
+    form = MessageForm(obj=message) # Pré-popula o formulário com dados da mensagem
+
+    if form.validate_on_submit():
+        try:
+            message.title = form.title.data
+            message.body = form.body.data
+            # message.timestamp = datetime.utcnow() # Opcional: atualizar o timestamp na edição?
+            # Decidimos não atualizar o timestamp para manter o original do envio.
+            db.session.commit()
+            flash('Mensagem atualizada com sucesso!', 'success')
+            return redirect(url_for('message_bp.list_messages_for_contact', contact_id=message.contact_id))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Erro ao atualizar a mensagem: {str(e)}', 'danger')
+
+    return render_template('messages/edit_message.html',
+                           title="Editar Mensagem",
+                           form=form,
+                           message_id=message.id, # Para o action do formulário no template
+                           contact_id=message.contact_id) # Para o botão Cancelar
+
+# Rota para EXCLUIR uma mensagem
+@bp.route('/<int:message_id>/delete', methods=['POST']) # Apenas POST
+@login_required
+def delete_message(message_id):
+    message = Message.query.get_or_404(message_id)
+    contact_id_redirect = message.contact_id # Salva para redirecionamento
+
+    # Segurança: Verifique se o usuário logado é o remetente da mensagem
+    if message.user_id != current_user.id:
+        flash('Você não tem permissão para excluir esta mensagem.', 'danger')
+        if contact_id_redirect:
+            return redirect(url_for('message_bp.list_messages_for_contact', contact_id=contact_id_redirect))
+        return redirect(url_for('main_bp.index'))
+
+    try:
+        db.session.delete(message)
+        db.session.commit()
+        flash('Mensagem excluída com sucesso!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao excluir a mensagem: {str(e)}', 'danger')
+
+    # Redireciona para a lista de mensagens do contato original
+    if contact_id_redirect:
+        return redirect(url_for('message_bp.list_messages_for_contact', contact_id=contact_id_redirect))
+    return redirect(url_for('main_bp.index')) # Fallback se não houver contact_id (improvável neste fluxo)

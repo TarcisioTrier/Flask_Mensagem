@@ -3,97 +3,66 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center;">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Meus Contatos</h2>
-    <a href="{{ url_for('auth_bp.logout') }}" class="button">SAIR</a> {# Botão Sair como no wireframe #}
+    {# O botão SAIR agora está no dropdown da navbar #}
+    <a href="{{ url_for('contact_bp.add_contact') }}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Novo Contato</a>
 </div>
 
 {% if contacts %}
-    <ul style="list-style-type: none; padding: 0;">
+    <div class="list-group">
         {% for contact in contacts %}
-        <li style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <span><strong>{{ contact.name }}</strong><br><small>{{ contact.phone_number }} | {{ contact.email if contact.email else 'Sem email' }}</small></span>
-            <div>
-                {# Use '#' no href até criarmos a rota de mensagens #}
-                <a href="{{ url_for('message_bp.list_messages_for_contact', contact_id=contact.id) }}" class="button-like">Mensagens</a>
-                <a href="{{ url_for('contact_bp.edit_contact', contact_id=contact.id) }}" class="button-like">✏️</a>
-                <form action="{{ url_for('contact_bp.delete_contact', contact_id=contact.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir {{ contact.name }}?');">
-                    <button type="submit" class="button-like" style="border: none; background: none; cursor: pointer; padding: 0; margin-left: 5px; font-size: inherit; vertical-align: baseline;">🗑️</button>
-                </form>
+        <div class="list-group-item list-group-item-action flex-column align-items-start mb-2"> {# mb-2 para espaço #}
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ contact.name }}</h5>
+                {# Botões de Ação agrupados #}
+                <div>
+                    <a href="{{ url_for('message_bp.list_messages_for_contact', contact_id=contact.id) }}" class="btn btn-sm btn-outline-primary me-1" title="Mensagens"><i class="bi bi-chat-dots"></i></a>
+                    <a href="{{ url_for('contact_bp.edit_contact', contact_id=contact.id) }}" class="btn btn-sm btn-outline-secondary me-1" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                     <form action="{{ url_for('contact_bp.delete_contact', contact_id=contact.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir {{ contact.name }}?');">
+                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir"><i class="bi bi-trash"></i></button>
+                     </form>
+                </div>
             </div>
-        </li>
+            <p class="mb-1">{{ contact.phone_number }}</p>
+            <small class="text-muted">{{ contact.email if contact.email else 'Sem email' }}</small>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 {% else %}
-    <p>Você ainda não tem contatos cadastrados.</p>
+    <div class="alert alert-info" role="alert">
+        Você ainda não tem contatos cadastrados. <a href="{{ url_for('contact_bp.add_contact') }}" class="alert-link">Adicione um novo contato</a>!
+    </div>
 {% endif %}
 
-<div style="margin-top: 20px;">
-    <a href="{{ url_for('contact_bp.add_contact') }}" class="button">Novo Contato</a>
-</div>
-
-{# Paginação (simples) #}
+{# Paginação Bootstrap #}
 {% if pagination and (pagination.has_prev or pagination.has_next) %}
-<nav aria-label="Paginação de contatos">
-    <ul class="pagination" style="list-style-type: none; padding: 0; display: flex; justify-content: center; margin-top:20px;">
-        {% if pagination.has_prev %}
-            <li style="margin-right: 5px;"><a href="{{ url_for('contact_bp.list_contacts', page=pagination.prev_num) }}">« Anterior</a></li>
-        {% else %}
-            <li style="margin-right: 5px; color: #aaa;">« Anterior</li>
-        {% endif %}
+<nav aria-label="Paginação de contatos" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {# Link 'Anterior' #}
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('contact_bp.list_contacts', page=pagination.prev_num) if pagination.has_prev else '#'}}">Anterior</a>
+        </li>
 
-        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {# Números das Páginas #}
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
             {% if page_num %}
                 {% if pagination.page == page_num %}
-                    <li style="margin-right: 5px; font-weight: bold;">{{ page_num }}</li>
+                    <li class="page-item active" aria-current="page"><span class="page-link">{{ page_num }}</span></li>
                 {% else %}
-                    <li style="margin-right: 5px;"><a href="{{ url_for('contact_bp.list_contacts', page=page_num) }}">{{ page_num }}</a></li>
+                    <li class="page-item"><a class="page-link" href="{{ url_for('contact_bp.list_contacts', page=page_num) }}">{{ page_num }}</a></li>
                 {% endif %}
             {% else %}
-                <li style="margin-right: 5px;">...</li>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
             {% endif %}
         {% endfor %}
 
-        {% if pagination.has_next %}
-            <li style="margin-left: 5px;"><a href="{{ url_for('contact_bp.list_contacts', page=pagination.next_num) }}">Próximo »</a></li>
-        {% else %}
-            <li style="margin-left: 5px; color: #aaa;">Próximo »</li>
-        {% endif %}
+         {# Link 'Próximo' #}
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('contact_bp.list_contacts', page=pagination.next_num) if pagination.has_next else '#'}}">Próximo</a>
+        </li>
     </ul>
 </nav>
 {% endif %}
 
-<style>
-    .button {
-        display: inline-block;
-        padding: 10px 15px;
-        font-size: 16px;
-        cursor: pointer;
-        text-align: center;
-        text-decoration: none;
-        outline: none;
-        color: #fff;
-        background-color: #007bff;
-        border: none;
-        border-radius: 5px;
-        box-shadow: 0 2px #999;
-    }
-    .button:hover {background-color: #0069d9}
-    .button:active {
-        background-color: #0062cc;
-        box-shadow: 0 1px #666;
-        transform: translateY(1px);
-    }
-    .button-like {
-        padding: 5px 10px;
-        margin-left: 5px;
-        text-decoration: none;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        color: #333;
-    }
-    .button-like:hover {
-        background-color: #f0f0f0;
-    }
-</style>
 {% endblock %}

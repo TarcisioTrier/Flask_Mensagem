@@ -3,67 +3,52 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h2>{{ legend }}</h2> {# Usando 'legend' para o título do formulário #}
-<form method="POST" action="" novalidate> {# A action será a URL atual #}
-    {{ form.hidden_tag() }}
+<div class="row justify-content-center">
+    <div class="col-md-8"> {# Um pouco mais largo para este form #}
+        <h2 class="mb-4">{{ legend }}</h2>
+        <form method="POST" action="" novalidate> {# Action vazia para submeter à mesma URL #}
+            {{ form.hidden_tag() }}
 
-    <p>
-        {{ form.name.label }}<br>
-        {{ form.name(size=32) }}<br>
-        {% for error in form.name.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.email.label }}<br>
-        {{ form.email(size=32) }}<br>
-        {% for error in form.email.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.phone_number.label }}<br>
-        {{ form.phone_number(size=32) }}<br>
-        {% for error in form.phone_number.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
-    </p>
-    <p>
-        {{ form.submit(class="button") }}
-        <a href="{{ url_for('contact_bp.list_contacts') }}" style="margin-left: 10px;">Cancelar</a>
-    </p>
-</form>
-<style>
-/* Você pode mover estes estilos para seu style.css principal */
-.button {
-    display: inline-block;
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    outline: none;
-    color: #fff;
-    background-color: #28a745; /* Verde para Cadastrar */
-    border: none;
-    border-radius: 5px;
-    box-shadow: 0 2px #999;
-}
-.button:hover {background-color: #218838}
-.button:active {
-    background-color: #1e7e34;
-    box-shadow: 0 1px #666;
-    transform: translateY(1px);
-}
-form p {
-    margin-bottom: 15px;
-}
-form input[type="text"], form input[type="email"] {
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    width: calc(100% - 18px); /* Ajuste para padding */
-    max-width: 300px;
-}
-</style>
+            <div class="mb-3">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                {% if form.name.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.name.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="email@exemplo.com (opcional)") }}
+                 {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.email.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.phone_number.label(class="form-label") }}
+                {{ form.phone_number(class="form-control" + (" is-invalid" if form.phone_number.errors else ""), placeholder="(XX) XXXXX-XXXX") }}
+                 {% if form.phone_number.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.phone_number.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                {# Mudar texto do botão dependendo se é add ou edit? (Opcional) #}
+                {% set button_text = 'Cadastrar' %}
+                {% if 'Editar' in legend %}
+                   {% set button_text = 'Salvar Alterações' %}
+                {% endif %}
+                {{ form.submit(value=button_text, class="btn btn-success") }} {# Usar btn-success para criar/salvar #}
+                <a href="{{ url_for('contact_bp.list_contacts') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

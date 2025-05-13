@@ -3,39 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Agenda de Contatos{% endblock %}</title>
+    <title>{% block title %}Agenda de Contatos{% endblock %} - MinhaAgenda</title> {# Adicionei um nome ao App #}
+
+    {# --- BOOTSTRAP CSS --- #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    {# --- Seu CSS customizado (opcional, carrega depois do Bootstrap para sobrescrever) --- #}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {# --- Ícones do Bootstrap (Opcional, mas útil) --- #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        /* Pequenos ajustes podem ir aqui ou no style.css */
+        body { padding-top: 5rem; } /* Ajuste para navbar fixa no topo */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 60px; /* Altura do footer */
+            line-height: 60px; /* Centraliza verticalmente */
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+        main { margin-bottom: 80px; } /* Espaço para o footer fixo */
+    </style>
+
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="{{ url_for('main_bp.index') }}">Início</a> |
+    {# --- BARRA DE NAVEGAÇÃO BOOTSTRAP --- #}
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('main_bp.index') }}">MinhaAgenda</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{ url_for('main_bp.index') }}">Início</a>
+            </li>
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main_bp.profile') }}">Meu Perfil</a> |
-                <a href="{{ url_for('contact_bp.list_contacts') }}">Meus Contatos</a> |
-                <a href="{{ url_for('auth_bp.logout') }}">Logout ({{ current_user.name }})</a>
-            {% else %}
-                <a href="{{ url_for('auth_bp.login') }}">Login</a> |
-                <a href="{{ url_for('auth_bp.register') }}">Cadastro</a>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('contact_bp.list_contacts') }}">Meus Contatos</a>
+            </li>
             {% endif %}
-        </nav>
-    </header>
-    <hr>
-    <main>
+          </ul>
+          {# --- Itens à direita --- #}
+          <ul class="navbar-nav ms-auto mb-2 mb-md-0">
+            {% if current_user.is_authenticated %}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i> {{ current_user.name }}
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url_for('main_bp.profile') }}">Meu Perfil</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('auth_bp.logout') }}">Logout <i class="bi bi-box-arrow-right"></i></a></li>
+                  </ul>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('auth_bp.login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('auth_bp.register') }}">Cadastro</a>
+                </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    {# --- CONTEÚDO PRINCIPAL DENTRO DE UM CONTAINER --- #}
+    <main class="container mt-4"> {# Adiciona margem no topo #}
+        {# --- MENSAGENS FLASH BOOTSTRAP --- #}
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <ul class="flashes">
                 {% for category, message in messages %}
-                    <li class="flash-{{ category }}">{{ message }}</li>
+                    {# Mapeia categorias flash para classes de alerta Bootstrap #}
+                    {% set alert_class = 'alert-info' %} {# Padrão #}
+                    {% if category == 'success' %}
+                        {% set alert_class = 'alert-success' %}
+                    {% elif category == 'error' or category == 'danger' %}
+                        {% set alert_class = 'alert-danger' %}
+                    {% elif category == 'warning' %}
+                        {% set alert_class = 'alert-warning' %}
+                    {% endif %}
+                    <div class="alert {{ alert_class }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endfor %}
-                </ul>
             {% endif %}
         {% endwith %}
+
+        {# --- BLOCO DE CONTEÚDO ESPECÍFICO DA PÁGINA --- #}
         {% block content %}{% endblock %}
     </main>
-    <footer>
-        <hr>
-        <p>© {{ current_year }} Sua Agenda de Contatos</p> {# Atualiza o ano dinamicamente #}
+
+    {# --- RODAPÉ BOOTSTRAP (Opcional, pode ser fixo ou não) --- #}
+    <footer class="footer mt-auto py-3 bg-light"> {# Removido o fixed do style e usando classes BS #}
+      <div class="container text-center">
+        <span class="text-muted">© {{ current_year }} Sua Agenda de Contatos</span>
+      </div>
     </footer>
+
+
+    {# --- BOOTSTRAP JAVASCRIPT BUNDLE (Importante para Dropdowns, Modals, etc) --- #}
+    {# --- Colocar ANTES de fechar o </body> --- #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateElements = document.querySelectorAll('.local-datetime');
+
+            dateElements.forEach(function(element) {
+                const utcTimestampStr = element.dataset.timestamp;
+                if (utcTimestampStr) {
+                    try {
+                        const utcDate = new Date(utcTimestampStr);
+                        // Verifica se a data é válida antes de formatar
+                        if (!isNaN(utcDate.getTime())) {
+                            // Define opções para um formato legível (ajuste conforme necessário)
+                            const options = {
+                                year: 'numeric', month: '2-digit', day: '2-digit',
+                                hour: '2-digit', minute: '2-digit', // second: '2-digit', // Opcional: segundos
+                                // timeZoneName: 'short' // Opcional: mostra o nome do fuso (ex: GMT-3)
+                            };
+                            // Formata usando o locale e timezone do navegador
+                            element.textContent = utcDate.toLocaleString(undefined, options);
+                        } else {
+                            // Data inválida, talvez mostrar o original ou uma mensagem de erro
+                            element.textContent = 'Data inválida';
+                            console.error('Invalid date string encountered:', utcTimestampStr);
+                        }
+                    } catch (e) {
+                         // Erro ao processar a data
+                         element.textContent = 'Erro';
+                         console.error('Error processing date string:', utcTimestampStr, e);
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
